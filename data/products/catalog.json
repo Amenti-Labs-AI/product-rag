@@ -1,0 +1,274 @@
+{
+  "products": [
+    {
+      "id": "prod-001",
+      "sku": "BOOT-TRAIL-42",
+      "title": "Summit Trail Hiker Boot",
+      "description": "Mid-cut hiking boot with Vibram outsole and waterproof membrane. Ideal for wet trails and long day hikes.",
+      "category": "footwear",
+      "price_usd": 189.99,
+      "attributes": { "waterproof": true, "gender": "unisex", "weight_oz": 28 }
+    },
+    {
+      "id": "prod-002",
+      "sku": "JACKET-RAIN-M",
+      "title": "StormShield Rain Jacket",
+      "description": "Lightweight 2.5-layer rain shell with taped seams and packable hood. Breathable for active use.",
+      "category": "apparel",
+      "price_usd": 149.0,
+      "attributes": { "waterproof": true, "packable": true }
+    },
+    {
+      "id": "prod-003",
+      "sku": "TENT-UL-2P",
+      "title": "FeatherLite 2P Ultralight Tent",
+      "description": "Two-person backpacking tent under 3 lbs with dual doors and full mesh canopy for star gazing.",
+      "category": "camping",
+      "price_usd": 329.0,
+      "attributes": { "capacity": 2, "freestanding": true, "weight_lb": 2.9, "weight_note": "under 3 lbs" }
+    },
+    {
+      "id": "prod-004",
+      "sku": "PACK-40L-G",
+      "title": "RidgeRunner 40L Backpack",
+      "description": "Versatile 40-liter pack with adjustable torso, hydration sleeve, and load lifters for weekend trips.",
+      "category": "bags",
+      "price_usd": 179.5,
+      "attributes": { "volume_l": 40, "frame": "internal" }
+    },
+    {
+      "id": "prod-005",
+      "sku": "SLEEP-BAG-20",
+      "title": "Alpine Comfort 20°F Sleeping Bag",
+      "description": "Down-filled mummy bag rated to 20°F with draft collar and anti-snag zipper.",
+      "category": "camping",
+      "price_usd": 259.0,
+      "attributes": { "fill": "650-fill down", "shape": "mummy" }
+    },
+    {
+      "id": "prod-006",
+      "sku": "STOVE-CAN-01",
+      "title": "MicroFlame Canister Stove",
+      "description": "Compact canister stove with piezo ignition and simmer control for backcountry cooking.",
+      "category": "camping",
+      "price_usd": 49.99,
+      "attributes": { "fuel": "isobutane", "boil_time_min": 3.5 }
+    },
+    {
+      "id": "prod-007",
+      "sku": "HEADLAMP-400",
+      "title": "NightBeam 400 Lumen Headlamp",
+      "description": "USB-rechargeable headlamp with red night mode and IPX6 water resistance.",
+      "category": "electronics",
+      "price_usd": 39.99,
+      "attributes": { "lumens": 400, "runtime_hr": 12 }
+    },
+    {
+      "id": "prod-008",
+      "sku": "POLE-CARBON",
+      "title": "Carbon Trek Poles (Pair)",
+      "description": "Lightweight carbon fiber trekking poles with cork grips and quick-lock adjustment.",
+      "category": "accessories",
+      "price_usd": 129.0,
+      "attributes": { "material": "carbon", "collapsible": true }
+    },
+    {
+      "id": "prod-009",
+      "sku": "SOCK-MERINO",
+      "title": "Merino Hike Crew Socks (3-pack)",
+      "description": "Cushioned merino wool socks that wick moisture and reduce blister risk on long hikes.",
+      "category": "apparel",
+      "price_usd": 36.0,
+      "attributes": { "material": "merino", "pack_size": 3 }
+    },
+    {
+      "id": "prod-010",
+      "sku": "FILTER-WATER",
+      "title": "ClearStream Squeeze Filter",
+      "description": "Squeeze-through water filter rated to 0.1 micron for bacteria and protozoa removal.",
+      "category": "camping",
+      "price_usd": 34.5,
+      "attributes": { "flow_rate_l_min": 1.2 }
+    },
+    {
+      "id": "prod-011",
+      "sku": "CHAIR-LOW",
+      "title": "TrailRest Low Camp Chair",
+      "description": "Low-profile camp chair that packs to the size of a water bottle and supports 300 lbs.",
+      "category": "camping",
+      "price_usd": 89.0,
+      "attributes": { "max_load_lb": 300 }
+    },
+    {
+      "id": "prod-012",
+      "sku": "GPS-HAND",
+      "title": "PathFinder Handheld GPS",
+      "description": "Rugged handheld GPS with preloaded topo maps, GLONASS support, and 25-hour battery.",
+      "category": "electronics",
+      "price_usd": 219.0,
+      "attributes": { "screen_in": 2.6, "ip_rating": "IPX7" }
+    },
+    {
+      "id": "prod-013",
+      "sku": "GLOVE-INSUL",
+      "title": "ThermalGrip Insulated Gloves",
+      "description": "Insulated gloves with leather palms and touchscreen-compatible fingertips for cold hikes.",
+      "category": "apparel",
+      "price_usd": 45.0,
+      "attributes": { "insulated": true, "touchscreen": true }
+    },
+    {
+      "id": "prod-014",
+      "sku": "MAT-FOAM",
+      "title": "FeatherRest Foam Sleeping Pad",
+      "description": "Closed-cell foam pad with egg-crate pattern for insulation and puncture-proof durability.",
+      "category": "camping",
+      "price_usd": 29.0,
+      "attributes": { "r_value": 2.0, "weight_oz": 14 }
+    },
+    {
+      "id": "prod-015",
+      "sku": "BOOT-LITE-38",
+      "title": "Canyon Lite Approach Shoe",
+      "description": "Low-cut approach shoe with sticky rubber and mesh upper for dry, technical terrain—not waterproof.",
+      "category": "footwear",
+      "price_usd": 119.0,
+      "attributes": { "waterproof": false, "use_case": "approach" }
+    },
+    {
+      "id": "prod-016",
+      "sku": "HAT-SUN",
+      "title": "Wide Brim Sun Hat UPF 50+",
+      "description": "Packable sun hat with 3-inch brim and UPF 50+ fabric for desert and alpine exposure.",
+      "category": "apparel",
+      "price_usd": 32.0,
+      "attributes": { "upf": 50 }
+    },
+    {
+      "id": "prod-017",
+      "sku": "KIT-FIRST-AID",
+      "title": "Trail First Aid Kit Pro",
+      "description": "Compact first aid kit with blister care, bandages, antiseptic, and emergency whistle.",
+      "category": "safety",
+      "price_usd": 42.0,
+      "attributes": { "items": 48 }
+    },
+    {
+      "id": "prod-018",
+      "sku": "BOTTLE-INSUL-32",
+      "title": "ArcticHold 32oz Insulated Bottle",
+      "description": "Double-wall stainless bottle keeps drinks cold 24h or hot 12h; fits standard cup holders.",
+      "category": "accessories",
+      "price_usd": 34.99,
+      "attributes": { "capacity_oz": 32 }
+    },
+    {
+      "id": "prod-019",
+      "sku": "TARP-UL",
+      "title": "SilNylon Ultralight Tarp 10x8",
+      "description": "Silnylon tarp with reinforced tie-outs for minimalist shelter setups and emergency rain cover.",
+      "category": "camping",
+      "price_usd": 79.0,
+      "attributes": { "dimensions_ft": "10x8" }
+    },
+    {
+      "id": "prod-020",
+      "sku": "ICE-AXE-STD",
+      "title": "Glacier Standard Ice Axe 65cm",
+      "description": "CE-rated ice axe for mountaineering with steel pick and adze; not intended for technical ice climbing.",
+      "category": "climbing",
+      "price_usd": 99.0,
+      "attributes": { "length_cm": 65, "rating": "CE-B" }
+    },
+    {
+      "id": "prod-021",
+      "sku": "BOOT-RAIN-43",
+      "title": "PuddleGuard Waterproof Hiking Boot",
+      "description": "Mid-cut waterproof hiking boot with sealed seams and aggressive lug sole for muddy trails and stream crossings.",
+      "category": "footwear",
+      "price_usd": 129.99,
+      "attributes": { "waterproof": true, "gender": "unisex", "weight_oz": 26 }
+    },
+    {
+      "id": "prod-022",
+      "sku": "PACK-22L-D",
+      "title": "TrailDay 22L Daypack",
+      "description": "Compact daypack with ventilated back panel, hip belt pockets, and hydration compatibility for day hikes.",
+      "category": "bags",
+      "price_usd": 89.0,
+      "attributes": { "volume_l": 22, "hydration_ready": true }
+    },
+    {
+      "id": "prod-023",
+      "sku": "PACK-65L-X",
+      "title": "SummitLoad 65L Expedition Backpack",
+      "description": "Heavy-duty 65-liter pack with adjustable suspension, removable lid, and side access for multi-day treks.",
+      "category": "bags",
+      "price_usd": 249.0,
+      "attributes": { "volume_l": 65, "frame": "internal", "max_load_lb": 50 }
+    },
+    {
+      "id": "prod-024",
+      "sku": "BEACON-SAT",
+      "title": "TrailBeacon Satellite Messenger",
+      "description": "Two-way satellite communicator with SOS, GPS tracking, and weather forecasts for off-grid adventures.",
+      "category": "electronics",
+      "price_usd": 299.0,
+      "attributes": { "satellite": true, "sos": true, "battery_days": 14 }
+    },
+    {
+      "id": "prod-025",
+      "sku": "TOWEL-QUICK",
+      "title": "QuickDry Microfiber Camp Towel",
+      "description": "Ultra-absorbent microfiber towel that dries fast and packs into a mesh stuff sack for camp and travel.",
+      "category": "accessories",
+      "price_usd": 18.0,
+      "attributes": { "size": "large", "weight_oz": 5 }
+    },
+    {
+      "id": "prod-026",
+      "sku": "BIVY-EMRG",
+      "title": "StormShell Emergency Bivy Sack",
+      "description": "Reflective emergency bivy sack rated for wind and rain; folds to palm size for backup shelter.",
+      "category": "safety",
+      "price_usd": 29.0,
+      "attributes": { "waterproof": true, "weight_oz": 4.5 }
+    },
+    {
+      "id": "prod-027",
+      "sku": "VEST-REFL",
+      "title": "HiVis Trail Safety Vest Kit",
+      "description": "Reflective safety vest with LED armbands and emergency whistle for low-light trail running and roadside visibility.",
+      "category": "safety",
+      "price_usd": 24.0,
+      "attributes": { "reflective": true, "includes_whistle": true }
+    },
+    {
+      "id": "prod-028",
+      "sku": "HARNESS-ALP",
+      "title": "Alpine Pro Climbing Harness",
+      "description": "Adjustable climbing harness with four gear loops and breathable mesh leg loops for sport and trad routes.",
+      "category": "climbing",
+      "price_usd": 79.0,
+      "attributes": { "gear_loops": 4, "weight_oz": 14 }
+    },
+    {
+      "id": "prod-029",
+      "sku": "CARAB-SET4",
+      "title": "RockLock Carabiner Set (4-pack)",
+      "description": "Four lightweight screw-gate carabiners rated to 25 kN for anchors, belay, and rack organization.",
+      "category": "climbing",
+      "price_usd": 35.0,
+      "attributes": { "gate_type": "screw", "strength_kn": 25, "count": 4 }
+    },
+    {
+      "id": "prod-030",
+      "sku": "JACKET-RAIN-S",
+      "title": "DriShield Packable Rain Jacket",
+      "description": "Budget-friendly waterproof rain jacket with elastic cuffs and stuffs into its own pocket for day hikes.",
+      "category": "apparel",
+      "price_usd": 44.99,
+      "attributes": { "waterproof": true, "packable": true }
+    }
+  ]
+}

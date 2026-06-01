@@ -1,0 +1,19 @@
+[package]
+name = "product-rag-ingest"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "product-rag-ingest"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+product-rag-common = { path = "../common" }
+product-rag-embed = { path = "../embed" }
+qdrant-client.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>product-rag</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+              product-rag
+            </h1>
+            <p class="mt-1 text-sm text-slate-600">
+              Semantic search and RAG chat over your product catalog.
+            </p>
+          </div>
+          <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            API
+            <code id="api-base" class="ml-1 font-mono text-slate-800"></code>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6">
+      <!-- Search -->
+      <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-6 py-4">
+          <h2 class="text-lg font-semibold text-slate-900">Search</h2>
+          <p class="mt-0.5 text-sm text-slate-500">
+            Natural-language queries with parsed price, waterproof, and product-type filters.
+          </p>
+        </div>
+        <div class="space-y-4 px-6 py-5">
+          <div class="grid gap-4 sm:grid-cols-[1fr_180px]">
+            <div>
+              <label for="search-q" class="mb-1.5 block text-sm font-medium text-slate-700">
+                Query
+              </label>
+              <input
+                id="search-q"
+                type="text"
+                placeholder="waterproof jackets under $50"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+              />
+            </div>
+            <div>
+              <label for="search-cat" class="mb-1.5 block text-sm font-medium text-slate-700">
+                Category <span class="font-normal text-slate-400">(optional)</span>
+              </label>
+              <input
+                id="search-cat"
+                type="text"
+                placeholder="footwear"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+              />
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              id="search-btn"
+              class="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            >
+              Search
+            </button>
+            <p class="text-xs text-slate-500">Try: waterproof boots under $150 · gloves under $50</p>
+          </div>
+        </div>
+
+        <div id="search-results" class="hidden border-t border-slate-100">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-3">
+            <div id="search-meta" class="flex flex-wrap items-center gap-2 text-sm"></div>
+            <button
+              type="button"
+              id="search-json-btn"
+              class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+            >
+              View JSON
+            </button>
+          </div>
+          <div id="search-table-wrap" class="overflow-x-auto"></div>
+          <pre
+            id="search-json"
+            class="hidden max-h-96 overflow-auto border-t border-slate-100 bg-slate-950 p-4 text-xs leading-relaxed text-emerald-300"
+          ></pre>
+        </div>
+        <div id="search-loading" class="hidden border-t border-slate-100 px-6 py-8 text-center text-sm text-slate-500">
+          Searching…
+        </div>
+        <div id="search-error" class="hidden border-t border-red-100 bg-red-50 px-6 py-4 text-sm text-red-700"></div>
+      </section>
+
+      <!-- Chat -->
+      <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-6 py-4">
+          <h2 class="text-lg font-semibold text-slate-900">Chat (RAG)</h2>
+          <p class="mt-0.5 text-sm text-slate-500">
+            Ask questions; answers are grounded in retrieved catalog excerpts.
+          </p>
+        </div>
+        <div class="space-y-4 px-6 py-5">
+          <div>
+            <label for="chat-msg" class="mb-1.5 block text-sm font-medium text-slate-700">
+              Message
+            </label>
+            <textarea
+              id="chat-msg"
+              rows="3"
+              placeholder="Which tent is best for two people under 3.5 lbs?"
+              class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            ></textarea>
+          </div>
+          <button
+            type="button"
+            id="chat-btn"
+            class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          >
+            Ask
+          </button>
+        </div>
+
+        <div id="chat-results" class="hidden border-t border-slate-100">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-3">
+            <p class="text-sm font-medium text-slate-700">Response</p>
+            <button
+              type="button"
+              id="chat-json-btn"
+              class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+            >
+              View JSON
+            </button>
+          </div>
+          <div id="chat-view" class="space-y-4 px-6 py-5"></div>
+          <pre
+            id="chat-json"
+            class="hidden max-h-96 overflow-auto border-t border-slate-100 bg-slate-950 p-4 text-xs leading-relaxed text-emerald-300"
+          ></pre>
+        </div>
+        <div id="chat-loading" class="hidden border-t border-slate-100 px-6 py-8 text-center text-sm text-slate-500">
+          Thinking… CPU inference may take 10–30 seconds.
+        </div>
+        <div id="chat-error" class="hidden border-t border-red-100 bg-red-50 px-6 py-4 text-sm text-red-700"></div>
+      </section>
+    </main>
+
+    <script>
+      const apiBase =
+        new URLSearchParams(location.search).get("api") ||
+        `${location.protocol}//${location.hostname}:8080`;
+      document.getElementById("api-base").textContent = apiBase;
+
+      async function post(path, body) {
+        const res = await fetch(`${apiBase}${path}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const text = await res.text();
+        if (!res.ok) throw new Error(text || res.statusText);
+        return JSON.parse(text);
+      }
+
+      function esc(s) {
+        return String(s ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function fmtPrice(v) {
+        if (v == null) return "—";
+        return `$${Number(v).toFixed(2)}`;
+      }
+
+      function fmtBool(v) {
+        if (v === true) return '<span class="text-emerald-700">Yes</span>';
+        if (v === false) return '<span class="text-slate-400">No</span>';
+        return "—";
+      }
+
+      function badge(label, value) {
+        return `<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">${esc(label)}: <span class="ml-1 font-semibold">${esc(value)}</span></span>`;
+      }
+
+      function setupJsonToggle(btnId, viewIds, jsonId) {
+        const btn = document.getElementById(btnId);
+        const jsonEl = document.getElementById(jsonId);
+        const views = viewIds.map((id) => document.getElementById(id));
+        let showingJson = false;
+
+        btn.addEventListener("click", () => {
+          showingJson = !showingJson;
+          jsonEl.classList.toggle("hidden", !showingJson);
+          views.forEach((el) => el.classList.toggle("hidden", showingJson));
+          btn.textContent = showingJson ? "View table" : "View JSON";
+        });
+
+        return () => {
+          showingJson = false;
+          jsonEl.classList.add("hidden");
+          views.forEach((el) => el.classList.remove("hidden"));
+          btn.textContent = "View JSON";
+        };
+      }
+
+      const resetSearchJson = setupJsonToggle("search-json-btn", ["search-table-wrap"], "search-json");
+      const resetChatJson = setupJsonToggle("chat-json-btn", ["chat-view"], "chat-json");
+
+      function renderSearchFilters(filters) {
+        if (!filters) return "";
+        const chips = [];
+        if (filters.semantic_query) chips.push(badge("Semantic", filters.semantic_query));
+        if (filters.max_price_usd != null) chips.push(badge("Max price", fmtPrice(filters.max_price_usd)));
+        if (filters.require_waterproof != null) chips.push(badge("Waterproof", filters.require_waterproof ? "required" : "excluded"));
+        if (filters.title_contains?.length) chips.push(badge("Title", filters.title_contains.join(", ")));
+        return chips.join("");
+      }
+
+      function renderHitsTable(hits, emptyMessage) {
+        if (!hits?.length) {
+          return `<div class="px-6 py-10 text-center text-sm text-slate-500">${esc(emptyMessage)}</div>`;
+        }
+
+        const rows = hits
+          .map(
+            (h) => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80">
+            <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-slate-900">${Number(h.score).toFixed(3)}</td>
+            <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-600">${esc(h.sku)}</td>
+            <td class="px-4 py-3 text-sm text-slate-900">${esc(h.title)}</td>
+            <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-600">${esc(h.category)}</td>
+            <td class="whitespace-nowrap px-4 py-3 text-sm text-slate-700">${fmtPrice(h.price_usd)}</td>
+            <td class="whitespace-nowrap px-4 py-3 text-sm">${fmtBool(h.waterproof)}</td>
+            <td class="max-w-md px-4 py-3 text-xs leading-relaxed text-slate-500">${esc(h.text?.replace(/\n/g, " · "))}</td>
+          </tr>`
+          )
+          .join("");
+
+        return `
+          <table class="min-w-full divide-y divide-slate-200 text-left">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Score</th>
+                <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">SKU</th>
+                <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Title</th>
+                <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Category</th>
+                <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Price</th>
+                <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Waterproof</th>
+                <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Excerpt</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+      }
+
+      function renderSourcesTable(sources) {
+        if (!sources?.length) return "";
+
+        const rows = sources
+          .map(
+            (s) => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80">
+            <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-slate-900">${Number(s.score).toFixed(3)}</td>
+            <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-600">${esc(s.sku)}</td>
+            <td class="px-4 py-3 text-sm text-slate-900">${esc(s.title)}</td>
+            <td class="max-w-lg px-4 py-3 text-xs leading-relaxed text-slate-500">${esc(s.excerpt)}</td>
+          </tr>`
+          )
+          .join("");
+
+        return `
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-800">Sources</h3>
+            <div class="overflow-x-auto rounded-lg border border-slate-200">
+              <table class="min-w-full divide-y divide-slate-200 text-left">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Score</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">SKU</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Title</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Excerpt</th>
+                  </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>`;
+      }
+
+      function renderChatAnswer(answer, sources) {
+        const notFound = !sources?.length;
+        const cardClass = notFound
+          ? "border-amber-100 bg-amber-50/70"
+          : "border-emerald-100 bg-emerald-50/60";
+        const labelClass = notFound ? "text-amber-800" : "text-emerald-800";
+        return `
+          <div class="rounded-lg border ${cardClass} px-4 py-4">
+            <p class="mb-1 text-xs font-semibold uppercase tracking-wide ${labelClass}">Answer</p>
+            <p class="text-sm leading-relaxed text-slate-800">${esc(answer)}</p>
+          </div>
+          ${renderSourcesTable(sources)}`;
+      }
+
+      document.getElementById("search-btn").addEventListener("click", async () => {
+        const results = document.getElementById("search-results");
+        const loading = document.getElementById("search-loading");
+        const error = document.getElementById("search-error");
+        const meta = document.getElementById("search-meta");
+        const tableWrap = document.getElementById("search-table-wrap");
+        const jsonEl = document.getElementById("search-json");
+
+        results.classList.add("hidden");
+        error.classList.add("hidden");
+        loading.classList.remove("hidden");
+        resetSearchJson();
+
+        try {
+          const filter = {};
+          const cat = document.getElementById("search-cat").value.trim();
+          if (cat) filter.category = cat;
+          const data = await post("/v1/search", {
+            query: document.getElementById("search-q").value,
+            limit: 8,
+            filter: Object.keys(filter).length ? filter : undefined,
+          });
+
+          meta.innerHTML = `
+            <span class="text-slate-600">Query:</span>
+            <span class="font-medium text-slate-900">${esc(data.query)}</span>
+            <span class="mx-1 text-slate-300">·</span>
+            <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800">${data.hits?.length ?? 0} hit(s)</span>
+            ${renderSearchFilters(data.filters_applied)}
+          `;
+          tableWrap.innerHTML = renderHitsTable(
+            data.hits,
+            "No products match all parsed filters."
+          );
+          jsonEl.textContent = JSON.stringify(data, null, 2);
+
+          loading.classList.add("hidden");
+          results.classList.remove("hidden");
+        } catch (e) {
+          loading.classList.add("hidden");
+          error.textContent = String(e);
+          error.classList.remove("hidden");
+        }
+      });
+
+      document.getElementById("chat-btn").addEventListener("click", async () => {
+        const results = document.getElementById("chat-results");
+        const loading = document.getElementById("chat-loading");
+        const error = document.getElementById("chat-error");
+        const view = document.getElementById("chat-view");
+        const jsonEl = document.getElementById("chat-json");
+
+        results.classList.add("hidden");
+        error.classList.add("hidden");
+        loading.classList.remove("hidden");
+        resetChatJson();
+
+        try {
+          const data = await post("/v1/chat", {
+            message: document.getElementById("chat-msg").value,
+          });
+
+          view.innerHTML = renderChatAnswer(data.answer, data.sources);
+          jsonEl.textContent = JSON.stringify(data, null, 2);
+
+          loading.classList.add("hidden");
+          results.classList.remove("hidden");
+        } catch (e) {
+          loading.classList.add("hidden");
+          error.textContent = String(e);
+          error.classList.remove("hidden");
+        }
+      });
+
+      document.getElementById("search-q").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") document.getElementById("search-btn").click();
+      });
+    </script>
+  </body>
+</html>

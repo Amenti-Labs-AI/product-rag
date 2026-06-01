@@ -1,0 +1,84 @@
+# syntax=docker/dockerfile:1.7
+# Linux/amd64 build (Docker Desktop on Intel Mac).
+# fastembed uses ONNX Runtime prebuilts for Linux.
+
+FROM rust:1.88-trixie AS chef
+WORKDIR /app
+RUN cargo install cargo-chef --locked
+
+FROM chef AS planner
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS cacher-dev
+COPY --from=planner /app/recipe.json /app/recipe.json
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/app/target \
+    cargo chef cook --recipe-path recipe.json
+
+FROM chef AS cacher-release
+COPY --from=planner /app/recipe.json /app/recipe.json
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/app/target \
+    cargo chef cook --release --recipe-path recipe.json
+
+FROM chef AS builder-dev-ingest
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/app/target \
+    cargo build -p product-rag-ingest \
+    && install -D /app/target/debug/product-rag-ingest /out/product-rag-ingest
+
+FROM chef AS builder-dev-api
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/app/target \
+    cargo build -p product-rag-api \
+    && install -D /app/target/debug/product-rag-api /out/product-rag-api
+
+FROM chef AS builder-release-ingest
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/app/target \
+    cargo build --release -p product-rag-ingest \
+    && install -D /app/target/release/product-rag-ingest /out/product-rag-ingest
+
+FROM chef AS builder-release-api
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/app/target \
+    cargo build --release -p product-rag-api \
+    && install -D /app/target/release/product-rag-api /out/product-rag-api
+
+FROM debian:trixie-slim AS runtime-base
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+
+FROM runtime-base AS dev-ingest
+COPY --from=builder-dev-ingest /out/product-rag-ingest /usr/local/bin/product-rag-ingest
+
+FROM runtime-base AS dev-api
+COPY --from=builder-dev-api /out/product-rag-api /usr/local/bin/product-rag-api
+
+FROM runtime-base AS release-ingest
+COPY --from=builder-release-ingest /out/product-rag-ingest /usr/local/bin/product-rag-ingest
+
+FROM runtime-base AS release-api
+COPY --from=builder-release-api /out/product-rag-api /usr/local/bin/product-rag-api
+
+# Backward-compatible aliases (default to API)
+FROM dev-api AS dev
+FROM release-api AS release

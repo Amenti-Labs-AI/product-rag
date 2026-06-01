@@ -1,0 +1,54 @@
+services:
+  ingest:
+    profiles: ["source"]
+
+  api:
+    profiles: ["source"]
+
+  ingest-prebuilt:
+    profiles: ["prebuilt", "ingest"]
+    image: ${INGEST_PREBUILT_IMAGE:-ghcr.io/amenti-labs-ai/product-rag-ingest:latest}
+    command: ["/usr/local/bin/product-rag-ingest"]
+    pull_policy: always
+    restart: "no"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    environment:
+      - QDRANT_URL=http://qdrant:6334
+      - DATA_DIR=/data/products
+      - EMBED_CACHE_DIR=/cache/fastembed
+      - INGEST_RECREATE=${INGEST_RECREATE:-true}
+      - INGEST_BATCH_SIZE=${INGEST_BATCH_SIZE:-32}
+      - RUST_LOG=${RUST_LOG:-info}
+    volumes:
+      - ./data/products:/data/products:ro
+      - fastembed_cache:/cache/fastembed
+
+  api-prebuilt:
+    profiles: ["prebuilt"]
+    image: ${API_PREBUILT_IMAGE:-ghcr.io/amenti-labs-ai/product-rag-api:latest}
+    command: ["/usr/local/bin/product-rag-api"]
+    pull_policy: always
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    environment:
+      - QDRANT_URL=http://qdrant:6334
+      - EMBED_CACHE_DIR=/cache/fastembed
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
+      - RAG_TOP_K=${RAG_TOP_K:-3}
+      - API_HOST=0.0.0.0
+      - API_PORT=8080
+      - RUST_LOG=${RUST_LOG:-info}
+    volumes:
+      - fastembed_cache:/cache/fastembed
+
+  web:
+    depends_on:
+      - api-prebuilt

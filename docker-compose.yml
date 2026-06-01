@@ -1,0 +1,96 @@
+# product-rag — local semantic search + RAG chat
+# cp .env.example .env && docker compose up -d
+# docker compose exec ollama ollama pull llama3.2:3b
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.13.4
+    ports:
+      - "${QDRANT_HTTP_PORT:-6333}:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333'"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    environment:
+      - OLLAMA_NUM_THREADS=${OLLAMA_NUM_THREADS:-4}
+      - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS:-1}
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 20s
+
+  ingest:
+    profiles: ["ingest"]
+    image: ${INGEST_LOCAL_IMAGE:-product-rag-ingest:dev}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.rust
+      target: ${INGEST_BUILD_TARGET:-dev-ingest}
+    command: ["/usr/local/bin/product-rag-ingest"]
+    restart: "no"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    environment:
+      - QDRANT_URL=http://qdrant:6334
+      - DATA_DIR=/data/products
+      - EMBED_CACHE_DIR=/cache/fastembed
+      - INGEST_RECREATE=${INGEST_RECREATE:-true}
+      - INGEST_BATCH_SIZE=${INGEST_BATCH_SIZE:-32}
+      - RUST_LOG=${RUST_LOG:-info}
+    volumes:
+      - ./data/products:/data/products:ro
+      - fastembed_cache:/cache/fastembed
+
+  api:
+    image: ${API_LOCAL_IMAGE:-product-rag-api:dev}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.rust
+      target: ${API_BUILD_TARGET:-dev-api}
+    command: ["/usr/local/bin/product-rag-api"]
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    environment:
+      - QDRANT_URL=http://qdrant:6334
+      - EMBED_CACHE_DIR=/cache/fastembed
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
+      - RAG_TOP_K=${RAG_TOP_K:-3}
+      - API_HOST=0.0.0.0
+      - API_PORT=8080
+      - RUST_LOG=${RUST_LOG:-info}
+    volumes:
+      - fastembed_cache:/cache/fastembed
+
+  web:
+    image: nginx:1.27-alpine
+    ports:
+      - "${WEB_PORT:-3000}:80"
+    volumes:
+      - ./docker/web:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+
+volumes:
+  qdrant_data:
+  ollama_data:
+  fastembed_cache:

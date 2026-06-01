@@ -1,0 +1,10 @@
+[package]
+name = "product-rag-embed"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+fastembed.workspace = true
+product-rag-common = { path = "../common" }
+thiserror.workspace = true
